@@ -86,6 +86,18 @@ async function run() {
     });
 
 
+    // DELETE item
+    app.delete('/items/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log('delete specific item', id);
+
+      const query = { _id: ObjectId(id) };
+      const result = await itemsCollection.deleteOne(query);
+      res.json(result);
+
+    })
+
+
 
     // All order product display 'GET'
     app.get('/products', async (req, res) => {
