@@ -1,11 +1,13 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const cors = require('cors');
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 
 const port = process.env.PORT || 5000;
 
+// middleware
 app.use(cors());
 app.use(express.json());
 
@@ -21,12 +23,79 @@ async function run() {
     console.log('database connected successfully');
 
     const database = client.db('bicycle_protal');
+
     const productsCollection = database.collection('products');
     const usersCollection = database.collection('users');
+    const itemsCollection = database.collection('items');
+    const reviewsCollection = database.collection('reviews');
 
 
 
-    // products get
+    // all reviews get
+
+    app.get('/reviews', async (req, res) => {
+      const cursor = reviewsCollection.find({});
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
+
+    // reviews post
+    app.post('/reviews', async (req, res) => {
+      const review = req.body;
+      console.log('Hit the api', review);
+
+      const result = await reviewsCollection.insertOne(review);
+      console.log(result);
+      res.json(result);
+    });
+
+
+
+
+    // all items get
+
+    app.get('/items', async (req, res) => {
+      const cursor = itemsCollection.find({});
+      const items = await cursor.toArray();
+      res.send(items);
+    });
+
+
+
+
+    // items post
+    app.post('/items', async (req, res) => {
+      const item = req.body;
+      console.log('Hit the api', item);
+
+      const result = await itemsCollection.insertOne(item);
+      console.log(result);
+      res.json(result);
+    });
+
+
+    // GET Single item
+    app.get('/items/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log('getting specific item', id);
+      const query = { _id: ObjectId(id) };
+      const item = await itemsCollection.findOne(query);
+      console.log(item);
+      res.json(item);
+    });
+
+
+
+    // All order product display 'GET'
+    app.get('/products', async (req, res) => {
+      const cursor = productsCollection.find({});
+      const products = await cursor.toArray();
+      res.send(products);
+    });
+
+
+    // products GET by orderd product user
     app.get('/products', async (req, res) => {
       const email = req.query.email;
       const query = { email: email }
@@ -44,7 +113,20 @@ async function run() {
       const result = await productsCollection.insertOne(product);
       console.log(result);
       // res.json({ message: 'hello' })
-      // res.json(result)
+      res.json(result)
+    });
+
+
+
+    // Products DELETE
+    app.delete('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log('delete specific item', id);
+
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
+      res.json(result);
+
     })
 
 
