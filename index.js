@@ -143,6 +143,36 @@ async function run() {
 
 
 
+    // get specific products user for update
+    app.get('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.findOne(query);
+      // console.log('load user with id:', id);
+      res.send(result);
+    })
+
+
+    // PUT: UPDATE specific products
+    app.put('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatedUser = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          name: updatedUser.name,
+          email: updatedUser.email
+        },
+      };
+      const result = await productsCollection.updateOne(filter, updateDoc, options)
+      console.log('updating user', id);
+      res.json(result);
+    })
+
+
+
+
     // admin user get
     app.get('/users/:email', async (req, res) => {
       const email = req.params.email;
